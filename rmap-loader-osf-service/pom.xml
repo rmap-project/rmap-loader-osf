@@ -1,0 +1,142 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>info.rmapproject</groupId>
+		<artifactId>rmap-loader-osf</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+  	<artifactId>rmap-loader-osf-service</artifactId>
+  	<name>rmap-loader-osf-service</name>
+	<dependencies>
+		<dependency>
+			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-loader-osf-transformer</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-loader-run-registry</artifactId>
+			<version>${rmap-loader.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-loader-validation</artifactId>
+			<version>${rmap-loader.version}</version>
+		    <exclusions>
+		      <exclusion> 
+		        <groupId>org.slf4j</groupId>
+		        <artifactId>slf4j-log4j12</artifactId>
+		      </exclusion>
+		    </exclusions> 
+		</dependency>
+		<dependency>
+			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-loader-deposit-disco</artifactId>
+			<version>${rmap-loader.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-loader-jms</artifactId>
+			<version>${rmap-loader.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>info.rmapproject</groupId>
+			<artifactId>rmap-loader-jms</artifactId>
+			<version>${rmap-loader.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>info.rmapproject.cos</groupId>
+			<artifactId>rmap-osf-client-extension</artifactId>
+			<version>${osf-client-extension.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.activemq</groupId>
+		    <artifactId>activemq-client</artifactId>
+		    <version>${activemq.version}</version>
+	    </dependency> 
+
+	    <dependency>
+	      <groupId>com.zaxxer</groupId>
+	      <artifactId>HikariCP</artifactId>
+	      <version>2.6.1</version>
+	      <optional>true</optional>
+	    </dependency>
+	    
+	    <dependency>
+	      <groupId>org.slf4j</groupId>
+	      <artifactId>slf4j-api</artifactId>
+	      <version>${slf4j.version}</version>
+	    </dependency>
+		
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+		</dependency>
+
+	    
+		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
+		<dependency>
+		    <groupId>commons-cli</groupId>
+		    <artifactId>commons-cli</artifactId>
+		    <version>1.4</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+		  <groupId>com.github.stefanbirkner</groupId>
+		  <artifactId>system-rules</artifactId>
+		  <version>1.16.0</version>
+		  <scope>test</scope>
+		</dependency>
+		
+	    <!-- needed for testing db on desktop -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.42</version>       
+        </dependency>
+        
+		
+	</dependencies>
+	<packaging>bundle</packaging>
+	<build>
+	  <plugins>  
+		<plugin>
+			<artifactId>maven-assembly-plugin</artifactId>
+			<configuration>
+				<archive>
+					<manifest>
+						<mainClass>info.rmapproject.loader.osf.OsfLoaderCLI</mainClass>
+					</manifest>
+				</archive>
+				<descriptorRefs>
+					<descriptorRef>jar-with-dependencies</descriptorRef>
+				</descriptorRefs>
+			</configuration>
+			<executions>
+				<execution>
+					<id>make-assembly</id>
+					<phase>package</phase>
+					<goals>
+						<goal>single</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+	    <plugin>
+	      <groupId>org.apache.felix</groupId>
+	      <artifactId>maven-bundle-plugin</artifactId>
+	    </plugin>
+	  </plugins>
+	</build>
+</project>

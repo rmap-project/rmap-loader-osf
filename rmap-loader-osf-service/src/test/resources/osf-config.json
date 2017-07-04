@@ -1,0 +1,19 @@
+{
+  "osf": {
+    "v2": {
+      "host": "api.osf.io",
+      "port": "443",
+      "basePath": "/v2/",
+      "authHeader": "",
+      "scheme": "https"
+    }
+  },
+  "wb": {
+    "v1": {
+      "host": "files.osf.io",
+      "port": "443",
+      "basePath": "/v1/",
+      "scheme": "https"
+    }
+  }
+}
