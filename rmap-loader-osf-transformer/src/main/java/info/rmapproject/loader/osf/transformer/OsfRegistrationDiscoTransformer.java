@@ -24,6 +24,7 @@ import java.util.List;
 import org.openrdf.model.IRI;
 import org.openrdf.model.Model;
 import org.openrdf.model.Resource;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.DCTERMS;
 import org.openrdf.model.vocabulary.RDF;
 
@@ -79,7 +80,13 @@ public class OsfRegistrationDiscoTransformer extends OsfNodeDiscoTransformer {
 	 */
 	@Override
 	public Model getModel() {		
-								
+		if (record==null){
+			throw new RuntimeException("Record value not set. Record value required before a model can be retrieved");
+		}
+		
+		model = new LinkedHashModel();		
+		discoId = factory.createBNode();
+		
 		//disco header
 		addDiscoHeader();
 		addRegistration(record, null);

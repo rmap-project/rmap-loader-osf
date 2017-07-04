@@ -148,8 +148,8 @@ public class OsfIdentifyService {
 		Integer numIdentified = 0;
 		try {			
 			String harvestName = "osf." + harvestType.getTypeString();
-			
-			if (!params.containsKey(PUBLIC_FILTER)){
+						
+			if (!params.containsKey(PUBLIC_FILTER) && !harvestType.equals(RecordType.OSF_USER)){
 				params.put(PUBLIC_FILTER, PUBLIC_FILTER_DEFAULT_VALUE);
 			}
 			
@@ -164,10 +164,10 @@ public class OsfIdentifyService {
 					startDate = OSFLoaderUtils.previousDayAsString(currRunDate);	
 				}
 				
-				if (harvestType.equals(RecordType.OSF_USER)) {
-					params.put(DATE_REGISTERED_FROM_FILTER, startDate);
-				} else {
+				if (!harvestType.equals(RecordType.OSF_USER)) {
 					params.put(DATE_MODIFIED_FROM_FILTER, startDate);
+				} else if (lastRunDate==null){
+					lastRunDate = new DateTime().minusDays(2);
 				}
 
 				//only record harvest date if we're doing default date handling
@@ -230,6 +230,9 @@ public class OsfIdentifyService {
 					} else {
 						LOG.info("Record " + id + " from queue " + queue + " was skipped. Record was already added in this session.");					
 					}
+    			} else if (filterDate.isBefore(lastRunDate)) {
+    				//exit loop - the rest of the records will be even earlier!
+    				break;
     			}
     			
     		} catch (Exception e) {
@@ -282,7 +285,7 @@ public class OsfIdentifyService {
 			if (type.equals(RecordType.OSF_NODE)) {
 				newRecord = osfClient.getLightNode(newId);
 			} else {
-				newRecord = osfClient.getLightNode(newId);
+				newRecord = osfClient.getLightRegistration(newId);
 			}
 			parentId = newRecord.getParent();
 			
