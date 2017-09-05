@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
@@ -49,6 +50,7 @@ import info.rmapproject.loader.osf.model.OsfHarvestableRecord;
 import info.rmapproject.loader.osf.model.OsfLightRecordDTO;
 import info.rmapproject.loader.osf.model.QueueName;
 import info.rmapproject.loader.osf.utils.OSFLoaderUtils;
+import info.rmapproject.loader.util.LogUtil;
 
 public class OsfIdentifyService {
 	
@@ -93,7 +95,11 @@ public class OsfIdentifyService {
 	
 	private DateTime lastRunDate = null;
 	
-	private boolean filterByRunDate = false;
+	private boolean filterByRunDate = false;	
+
+	private Set<String> identifiedIds = null;   
+	
+	private Integer numFailuresRequeued = 0;
 	
 	
 	/**
@@ -101,9 +107,14 @@ public class OsfIdentifyService {
 	 * @param type
 	 */
 	public OsfIdentifyService(RecordType type, String filters){
+
+		LogUtil.adjustLogLevels();
 		
 		try {
 			this.harvestType=type;
+			if (filters==null){
+				filters="";
+			} 
 			this.params = OSFLoaderUtils.readParamsIntoMap(filters);
 			this.jmsQueue = new OsfJmsQueue();
 			
@@ -114,7 +125,7 @@ public class OsfIdentifyService {
 	        ds.setPassword(string("jdbc.password", null));
 	        ds.setDriverClassName(string("jdbc.driver",null));
 	        this.datasource = ds;
-	        
+	        this.identifiedIds = new HashSet<String>();
 
 		} catch (Exception e) {
 			throw new RuntimeException("Could not complete identify records process.", e);    
@@ -194,18 +205,18 @@ public class OsfIdentifyService {
 
 	private Integer addAllRecords(Iterator<OsfLightRecordDTO> iterator, String queue) {
 		//Reset counter
-		Integer counter = 0;   
-		Set<String> identifiedIds = new HashSet<String>();                                                      
+		Integer counter = 0;                                                      
 		do {
 	        String id = null;
     		try {
     			OsfLightRecordDTO osfRecord = iterator.next();
+    			
     			DateTime filterDate = osfRecord.getFilterDate();
     			if (!filterByRunDate 
     					|| (filterByRunDate 
     						&& (lastRunDate==null || filterDate.isAfter(lastRunDate)||filterDate.equals(lastRunDate)))
     						&& filterDate.isBefore(currRunDate)) {
-    				    
+    				        				
     				id = osfRecord.getId();
     				
     				//For nodes or registrations, check if parent is accessible, if so use parent record instead
@@ -230,8 +241,8 @@ public class OsfIdentifyService {
 					} else {
 						LOG.info("Record " + id + " from queue " + queue + " was skipped. Record was already added in this session.");					
 					}
-    			} else if (filterDate.isBefore(lastRunDate)) {
-    				//exit loop - the rest of the records will be even earlier!
+    			} else if (filterDate.isBefore(lastRunDate) && harvestType.equals(RecordType.OSF_USER)) {
+    				//for User records, exit loop - the rest of the records will be even earlier!
     				break;
     			}
     			
@@ -247,6 +258,48 @@ public class OsfIdentifyService {
 				
 		return counter;
 	}
+	
+	/**
+	 * Moves failed records to the start of the process again (i.e. the corresponding TRANSFORM queue)
+	 * @param type
+	 * @return
+	 */
+	public Integer requeueFailures(String failQueue) {
+
+		String ingestQueue = QueueName.getQueueName(QueueName.TRANSFORM, harvestType, null);
+
+		Consumer<HarvestRecord> consumer = received -> {
+			String idUrl = received.getRecordInfo().getHarvestInfo().getId().toString();
+			String osfId = OSFLoaderUtils.extractLastSubFolder(idUrl);
+			try {	
+				
+				if (!identifiedIds.contains(osfId)){
+					received.setBody(osfId.getBytes());
+					received.getRecordInfo().setContentType(harvestType.getTypeString());
+					jmsQueue.add(received, ingestQueue);
+					numFailuresRequeued = numFailuresRequeued + 1;
+		   			identifiedIds.add(osfId);
+					LOG.info("Record requeued from fail:" + osfId + " from queue: " + failQueue + " and added to " + ingestQueue);					
+				} else {
+					LOG.info("Record " + osfId + " from queue " + failQueue + " was skipped. Record was already requeued in this session.");	
+					
+				}
+				
+			} catch (Exception ex) {
+				LOG.error("Failed to requeue record with ID, this will be returned to the fail queue: " + osfId, ex);
+				//add to fail queue
+				jmsQueue.add(received, failQueue);
+			}
+			
+	      };	
+
+		jmsQueue.processMessages(failQueue, consumer);
+		LOG.debug(numFailuresRequeued + " records moved from " + failQueue + " queue to " + ingestQueue);		
+		
+		return numFailuresRequeued;
+	}
+	
+	
 	
 	/**
 	 * Attempts to connect to URL provided to see if it returns a 401, which means it exists but is not publicly accessible.
@@ -358,8 +411,7 @@ public class OsfIdentifyService {
 	}
 	
     public void close() {
-		jmsQueue.close();
-    }
+		jmsQueue.close();    }
 
 	
 }

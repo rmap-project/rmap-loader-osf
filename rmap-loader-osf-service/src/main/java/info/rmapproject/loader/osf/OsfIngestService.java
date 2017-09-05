@@ -54,6 +54,7 @@ import info.rmapproject.loader.HarvestRecordStatus;
 import info.rmapproject.loader.deposit.disco.DiscoDepositConsumer;
 import info.rmapproject.loader.deposit.disco.RdbmsHarvestRecordRegistry;
 import info.rmapproject.loader.osf.jms.OsfJmsQueue;
+import info.rmapproject.loader.util.LogUtil;
 import info.rmapproject.loader.validation.DiscoValidator;
 import info.rmapproject.loader.validation.DiscoValidator.Format;
 
@@ -77,6 +78,9 @@ public class OsfIngestService {
 	
 	
 	public OsfIngestService(){
+		
+		LogUtil.adjustLogLevels();
+		
 		this.jmsQueue = new OsfJmsQueue();
 		
 		//initiate data source

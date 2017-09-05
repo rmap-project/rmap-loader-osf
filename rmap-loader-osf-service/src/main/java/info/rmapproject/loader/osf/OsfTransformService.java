@@ -42,6 +42,7 @@ import info.rmapproject.loader.osf.transformer.OsfNodeDiscoTransformer;
 import info.rmapproject.loader.osf.transformer.OsfRegistrationDiscoTransformer;
 import info.rmapproject.loader.osf.transformer.OsfUserDiscoTransformer;
 import info.rmapproject.loader.osf.transformer.TransformUtils;
+import info.rmapproject.loader.util.LogUtil;
 
 public class OsfTransformService {	
 
@@ -58,6 +59,7 @@ public class OsfTransformService {
 	protected OsfJmsQueue jmsQueue;
 	
 	public OsfTransformService(){
+		LogUtil.adjustLogLevels();
 		this.jmsQueue = new OsfJmsQueue();
 	}
 
