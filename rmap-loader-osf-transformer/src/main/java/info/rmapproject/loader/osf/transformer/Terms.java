@@ -32,7 +32,7 @@ import org.openrdf.model.impl.SimpleValueFactory;
 public class Terms {
 	
  	/**RMap vocabulary constants*/
-	public static final String RMAP_NAMESPACE = "http://rmap-project.org/rmap/terms/";
+	public static final String RMAP_NAMESPACE = "http://purl.org/ontology/rmap#";
 	
 	/** The RMap ontology prefix */
 	public static final String RMAP_PREFIX = "rmap";
@@ -143,7 +143,7 @@ public class Terms {
 	public static final String FILE = "File";
 
 	/** The RMap Agent ontology namespace*/
-	public static final String RMAPAGENT_NAMESPACE = "http://rmap-project.org/rmap/agents/";
+	public static final String RMAPAGENT_NAMESPACE = "http://rmap-hub.org/rmap/agents/";
 		
 	/** Mailto term for email prefixes. */
 	public static final String MAILTO = "mailto:";

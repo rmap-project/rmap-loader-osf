@@ -237,7 +237,7 @@ public class OsfLoaderCLI {
 			LOG.info(identifyMsg);
 			System.out.println(identifyMsg);
 
-			Integer numIngestRequeued = runRequeueFails(transformFailQ,type);
+			Integer numIngestRequeued = runRequeueFails(ingestFailQ,type);
 			identifyMsg = "Number of failed " + harvesterType + " ingests identified and requeued for harvest:" + numIngestRequeued;
 			LOG.info(identifyMsg);
 			System.out.println(identifyMsg);	
