@@ -59,7 +59,7 @@ public class OsfUserDiscoTransformer extends DiscoTransformer {
 	protected static final String OSF_PATH_PREFIX = "https://osf.io/";
 	
 	/** ORCID path prefix. */
-	protected static final String ORCID_PREFIX = "http://orcid.org/";
+	protected static final String ORCID_PREFIX = "https://orcid.org/";
 	
 	/** Researcher ID path prefix. */
 	protected static final String RESEARCHERID_PREFIX = "http://researcherid.com/rid/";
