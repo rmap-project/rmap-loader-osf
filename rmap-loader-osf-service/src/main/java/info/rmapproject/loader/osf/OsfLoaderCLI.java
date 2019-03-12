@@ -35,7 +35,8 @@ import info.rmapproject.loader.osf.model.QueueName;
 import info.rmapproject.loader.util.LogUtil;
 
 /**
- * Imports SHARE JSON into a SHARE object and then transforms it to and RMap DiSCO.
+ * Retrieves data from the OSF API based on filters provided, transforms it into DiSCOs, creates those
+ * DiSCOs in RMap.
  *
  * @author khanson
  */
